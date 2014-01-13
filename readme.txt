@@ -3,7 +3,7 @@ Contributors: soflyy
 Tags: wordpress, xml, csv, datafeed, export
 Requires at least: 3.6.1
 Tested up to: 3.8
-Stable tag: 0.9
+Stable tag: 0.9.0
 
 WP All Export makes it easy to export WordPress data into an XML file. 
 

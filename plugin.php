@@ -3,7 +3,7 @@
 Plugin Name: WP All Export
 Plugin URI: http://wordpress.org/plugins/wp-all-export/
 Description: The most powerful solution for exporting WordPress data to an XML file.
-Version: 0.9.0
+Version: 0.9.1
 Author: Soflyy
 */
 
@@ -28,7 +28,7 @@ define('PMXE_ROOT_URL', rtrim(plugin_dir_url(__FILE__), '/'));
  */
 define('PMXE_PREFIX', 'pmxe_');
 
-define('PMXE_VERSION', '0.9.0');
+define('PMXE_VERSION', '0.9.1');
 
 define('PMXE_EDITION', 'free');
 
@@ -281,40 +281,62 @@ final class PMXE_Plugin {
 				throw new Exception('There is no previousely buffered content to display.');
 			}
 		} else {
-			$controllerName =  preg_replace('%(^' . preg_quote(self::PREFIX, '%') . '|_).%e', 'strtoupper("$0")', str_replace('-', '_', $page)); // capitalize prefix and first letters of class name parts
+			
+			// capitalize prefix and first letters of class name parts	
+			if (function_exists('preg_replace_callback')){
+				$controllerName = preg_replace_callback('%(^' . preg_quote(self::PREFIX, '%') . '|_).%', array($this, "replace_callback"),str_replace('-', '_', $page));
+			}
+			else{
+				$controllerName =  preg_replace('%(^' . preg_quote(self::PREFIX, '%') . '|_).%e', 'strtoupper("$0")', str_replace('-', '_', $page)); 
+			}
+
 			$actionName = str_replace('-', '_', $action);
 			if (method_exists($controllerName, $actionName)) {
-				$this->_admin_current_screen = (object)array(
-					'id' => $controllerName,
-					'base' => $controllerName,
-					'action' => $actionName,
-					'is_ajax' => isset($_SERVER['HTTP_X_REQUESTED_WITH']) and strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest',
-					'is_network' => is_network_admin(),
-					'is_user' => is_user_admin(),
-				);
-				add_filter('current_screen', array($this, 'getAdminCurrentScreen'));
-				add_filter('admin_body_class', create_function('', 'return "' . PMXE_Plugin::PREFIX . 'plugin";'));
 
-				$controller = new $controllerName();
-				if ( ! $controller instanceof PMXE_Controller_Admin) {
-					throw new Exception("Administration page `$page` matches to a wrong controller type.");
-				}
+				if ( ! get_current_user_id() or ! current_user_can('manage_options')) {
+				    // This nonce is not valid.
+				    die( 'Security check' ); 
 
-				if ($this->_admin_current_screen->is_ajax) { // ajax request
-					$controller->$action();
-					do_action('pmxe_action_after');
-					die(); // stop processing since we want to output only what controller is randered, nothing in addition
-				} elseif ( ! $controller->isInline) {
-					ob_start();
-					$controller->$action();
-					$buffer = ob_get_clean();
 				} else {
-					$buffer_callback = array($controller, $action);
+
+					$this->_admin_current_screen = (object)array(
+						'id' => $controllerName,
+						'base' => $controllerName,
+						'action' => $actionName,
+						'is_ajax' => isset($_SERVER['HTTP_X_REQUESTED_WITH']) and strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest',
+						'is_network' => is_network_admin(),
+						'is_user' => is_user_admin(),
+					);
+					add_filter('current_screen', array($this, 'getAdminCurrentScreen'));
+					add_filter('admin_body_class', create_function('', 'return "' . PMXE_Plugin::PREFIX . 'plugin";'));
+
+					$controller = new $controllerName();
+					if ( ! $controller instanceof PMXE_Controller_Admin) {
+						throw new Exception("Administration page `$page` matches to a wrong controller type.");
+					}
+
+					if ($this->_admin_current_screen->is_ajax) { // ajax request
+						$controller->$action();
+						do_action('pmxe_action_after');
+						die(); // stop processing since we want to output only what controller is randered, nothing in addition
+					} elseif ( ! $controller->isInline) {
+						ob_start();
+						$controller->$action();
+						$buffer = ob_get_clean();
+					} else {
+						$buffer_callback = array($controller, $action);
+					}
+
 				}
+				
 			} else { // redirect to dashboard if requested page and/or action don't exist
 				wp_redirect(admin_url()); die();
 			}
 		}
+	}
+
+	public function replace_callback($matches){
+		return strtoupper($matches[0]);
 	}
 
 	protected $_admin_current_screen = NULL;

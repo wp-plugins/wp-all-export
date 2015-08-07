@@ -56,21 +56,29 @@ abstract class PMXE_Controller {
 	 * @param string[optional] $viewPath Template path to render
 	 */
 	protected function render($viewPath = null) {
-		// assume template file name depending on calling function
-		if (is_null($viewPath)) {
-			$trace = debug_backtrace();
-			$viewPath = str_replace('_', '/', preg_replace('%^' . preg_quote(PMXE_Plugin::PREFIX, '%') . '%', '', strtolower($trace[1]['class']))) . '/' . $trace[1]['function'];
-		}
-		// append file extension if not specified
-		if ( ! preg_match('%\.php$%', $viewPath)) {
-			$viewPath .= '.php';
-		}
-		$filePath = PMXE_Plugin::ROOT_DIR . '/views/' . $viewPath;
-		if (is_file($filePath)) {
-			extract($this->data);
-			include $filePath;
+		
+		if ( ! get_current_user_id() or ! current_user_can('manage_options')) {
+		    // This nonce is not valid.
+		    die( 'Security check' ); 
+
 		} else {
-			throw new Exception("Requested template file $filePath is not found.");
+			
+			// assume template file name depending on calling function
+			if (is_null($viewPath)) {
+				$trace = debug_backtrace();
+				$viewPath = str_replace('_', '/', preg_replace('%^' . preg_quote(PMXE_Plugin::PREFIX, '%') . '%', '', strtolower($trace[1]['class']))) . '/' . $trace[1]['function'];
+			}
+			// append file extension if not specified
+			if ( ! preg_match('%\.php$%', $viewPath)) {
+				$viewPath .= '.php';
+			}
+			$filePath = PMXE_Plugin::ROOT_DIR . '/views/' . $viewPath;
+			if (is_file($filePath)) {
+				extract($this->data);
+				include $filePath;
+			} else {
+				throw new Exception("Requested template file $filePath is not found.");
+			}
 		}
 	}
 	
@@ -99,4 +107,33 @@ abstract class PMXE_Controller {
 		}
 	}
 	
+	public function download(){				
+
+		$nonce = (!empty($_REQUEST['_wpnonce'])) ? $_REQUEST['_wpnonce'] : '';
+		if ( ! wp_verify_nonce( $nonce, '_wpnonce-download_feed' ) ) {		    
+		    die( __('Security check', 'wp_all_export_plugin') ); 
+		} else {
+
+			$attch_url = PMXE_Plugin::$session->file;
+
+			$export_type = PMXE_Plugin::$session->export_to;
+
+			// clear import session
+			PMXE_Plugin::$session->clean_session();	 // clear session data (prevent from reimporting the same data on page refresh)
+
+			switch ($export_type) {
+				case 'xml':
+					PMXE_download::xml($attch_url);		
+					break;
+				case 'csv':
+					PMXE_download::csv($attch_url);		
+					break;
+				
+				default:
+					# code...
+					break;
+			}		
+		}
+
+	}
 }

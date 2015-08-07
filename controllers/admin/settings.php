@@ -8,7 +8,19 @@ class PMXE_Admin_Settings extends PMXE_Controller_Admin {
 	
 	public function index() {
 		
-		$this->data['post'] = $post = $this->input->post(PMXI_Plugin::getInstance()->getOption());
+		$this->data['post'] = $post = $this->input->post(PMXE_Plugin::getInstance()->getOption());
+
+		if ($this->input->post('is_settings_submitted')) { // save settings form	
+
+			check_admin_referer('edit-settings', '_wpnonce_edit-settings');		
+			
+			if ( ! $this->errors->get_error_codes()) { // no validation errors detected
+
+				PMXE_Plugin::getInstance()->updateOption($post);
+				
+				wp_redirect(add_query_arg('pmxe_nt', urlencode(__('Settings saved', 'pmxe_plugin')), $this->baseUrl)); die();
+			}
+		}
 
 		$this->render();
 
@@ -20,11 +32,5 @@ class PMXE_Admin_Settings extends PMXE_Controller_Admin {
 
 		exit('OK');
 	}	
-
-	public function download(){
-
-		PMXE_download::csv(PMXE_Plugin::ROOT_DIR.'/logs/'.$_GET['file'].'.txt');
-		
-	}
 
 }

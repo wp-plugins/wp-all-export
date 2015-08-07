@@ -19,7 +19,14 @@ class PMXE_Input {
 	}
 	
 	public function get($paramName, $default = NULL) {
-		return $this->read($_GET, $paramName, $default);
+		$this->addFilter('htmlspecialchars');
+		$this->addFilter('strip_tags');
+		$this->addFilter('esc_sql');		
+		$result = $this->read($_GET, $paramName, $default);
+		$this->removeFilter('htmlspecialchars');
+		$this->removeFilter('strip_tags');		
+		$this->removeFilter('esc_sql');
+		return $result;
 	}
 	
 	public function post($paramName, $default = NULL) {

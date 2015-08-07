@@ -47,6 +47,7 @@ abstract class PMXE_Controller_Admin extends PMXE_Controller {
 		wp_enqueue_style('pmxe-admin-style-ie', PMXE_ROOT_URL . '/static/css/admin-ie.css');		
 		wp_enqueue_style('jquery-select2', PMXE_ROOT_URL . '/static/js/jquery/css/select2/select2.css');
 		wp_enqueue_style('jquery-select2', PMXE_ROOT_URL . '/static/js/jquery/css/select2/select2-bootstrap.css');
+		wp_enqueue_style('jquery-chosen', PMXE_ROOT_URL . '/static/js/jquery/css/chosen/chosen.css');
 		$wp_styles->add_data('pmxe-admin-style-ie', 'conditional', 'lte IE 7');
 		wp_enqueue_style('wp-pointer');		
 		
@@ -62,9 +63,11 @@ abstract class PMXE_Controller_Admin extends PMXE_Controller {
 		wp_enqueue_script('jquery-ui-datepicker', PMXE_ROOT_URL . '/static/js/jquery/ui.datepicker.js', 'jquery-ui-core');
 		wp_enqueue_script('jquery-ui-autocomplete', PMXE_ROOT_URL . '/static/js/jquery/ui.autocomplete.js', array('jquery-ui-core', 'jquery-ui-widget', 'jquery-ui-position'));
 		wp_enqueue_script('jquery-tipsy', PMXE_ROOT_URL . '/static/js/jquery/jquery.tipsy.js', 'jquery');
-		wp_enqueue_script('jquery-nestable', PMXE_ROOT_URL . '/static/js/jquery/jquery.mjs.nestedSortable.js', array('jquery', 'jquery-ui-dialog', 'jquery-ui-sortable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-tabs', 'jquery-ui-progressbar'));
+		wp_enqueue_script('jquery-pmxe-nestable', PMXE_ROOT_URL . '/static/js/jquery/jquery.mjs.pmxe_nestedSortable.js', array('jquery', 'jquery-ui-dialog', 'jquery-ui-sortable', 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-tabs', 'jquery-ui-progressbar'));
 		wp_enqueue_script('jquery-moment', PMXE_ROOT_URL . '/static/js/jquery/moment.js', 'jquery');		
 		wp_enqueue_script('jquery-select2', PMXE_ROOT_URL . '/static/js/jquery/select2.min.js', 'jquery');
+		wp_enqueue_script('jquery-ddslick', PMXE_ROOT_URL . '/static/js/jquery/jquery.ddslick.min.js', 'jquery');
+		wp_enqueue_script('jquery-chosen', PMXE_ROOT_URL . '/static/js/jquery/chosen.jquery.min.js', 'jquery');
 		wp_enqueue_script('wp-pointer');
 
 		/* load plupload scripts */		

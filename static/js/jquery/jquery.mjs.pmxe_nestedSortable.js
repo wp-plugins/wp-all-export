@@ -13,12 +13,12 @@
 
 (function($) {
 
-	$.widget("mjs.nestedSortable", $.extend({}, $.ui.sortable.prototype, {
+	$.widget("mjs.pmxe_nestedSortable", $.extend({}, $.ui.sortable.prototype, {
 
 		options: {
 			tabSize: 20,
-			disableNesting: 'mjs-nestedSortable-no-nesting',
-			errorClass: 'mjs-nestedSortable-error',
+			disableNesting: 'mjs-pmxe_nestedSortable-no-nesting',
+			errorClass: 'mjs-pmxe_nestedSortable-error',
 			listType: 'ol',
 			maxLevels: 0,
 			protectRoot: false,
@@ -28,18 +28,18 @@
 		},
 
 		_create: function() {
-			this.element.data('sortable', this.element.data('nestedSortable'));
+			this.element.data('sortable', this.element.data('pmxe_nestedSortable'));
 
 			if (!this.element.is(this.options.listType))
-				throw new Error('nestedSortable: Please check the listType option is set to your actual list type');
+				throw new Error('pmxe_nestedSortable: Please check the listType option is set to your actual list type');
 
 			return $.ui.sortable.prototype._create.apply(this, arguments);
 		},
 
 		destroy: function() {
 			this.element
-				.removeData("nestedSortable")
-				.unbind(".nestedSortable");
+				.removeData("pmxe_nestedSortable")
+				.unbind(".pmxe_nestedSortable");
 			return $.ui.sortable.prototype.destroy.apply(this, arguments);
 		},
 
@@ -345,7 +345,10 @@
 				}
 				
 				if (id) {
-						ret.push({"item_id": id[2], "parent_id": pid, "delim": $(item).parents('.post_taxonomy:first').find('input.tax_delim').val(), "left": left, "right": right, "xpath":$(item).find('input.widefat').val(), "assign":$(item).find('input.assign_post:first').is(':checked'), "auto_nested":$(item).parents('.post_taxonomy:first').find('input.taxonomy_auto_nested').is(':checked')});
+
+					var clause = ($(item).find('.condition').is(':visible')) ? $(item).find('input.rule_condition:checked').val().toUpperCase() : false;								
+					
+					ret.push({"item_id": id[2], "left": left, "right": right, "parent_id": pid, "element":$(item).find('input.wp_all_export_xml_element').val(), "title" : $(item).find('input.wp_all_export_xml_element_title').val(), "condition" : $(item).find('input.wp_all_export_rule').val(), "value" : $(item).find('input.wp_all_export_value').val(),  "clause" : clause });
 				}
 
 				left = right + 1;
@@ -395,7 +398,7 @@
 		_isAllowed: function(parentItem, level, levels) {
 			var o = this.options,
 				isRoot = $(this.domPosition.parent).hasClass('ui-sortable') ? true : false,
-				maxLevels = this.placeholder.closest('.ui-sortable').nestedSortable('option', 'maxLevels'); // this takes into account the maxLevels set to the recipient list
+				maxLevels = this.placeholder.closest('.ui-sortable').pmxe_nestedSortable('option', 'maxLevels'); // this takes into account the maxLevels set to the recipient list
 
 			// Is the root protected?
 			// Are we trying to nest under a no-nest?
@@ -422,5 +425,5 @@
 
 	}));
 
-	$.mjs.nestedSortable.prototype.options = $.extend({}, $.ui.sortable.prototype.options, $.mjs.nestedSortable.prototype.options);
+	$.mjs.pmxe_nestedSortable.prototype.options = $.extend({}, $.ui.sortable.prototype.options, $.mjs.pmxe_nestedSortable.prototype.options);
 })(jQuery);

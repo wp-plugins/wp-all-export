@@ -1,4 +1,4 @@
-.tipsy { padding: 5px; font-size: 0.85em; position: absolute; z-index: 100000; line-height: 1.3em; max-width: 320px;}
+.tipsy { padding: 5px; font-size: 0.85em; position: absolute; z-index: 999999; line-height: 1.3em; max-width: 320px;}
   .tipsy-inner { padding: 2px 4px 2px 4px; background-color: white; border: 1px solid #333;}
   .tipsy-arrow { position: absolute; background: url('images/tipsy.gif') no-repeat top left; width: 9px; height: 5px; }
   .tipsy-n .tipsy-arrow { top: 0; left: 50%; margin-left: -4px; }
